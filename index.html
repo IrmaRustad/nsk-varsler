@@ -52,8 +52,9 @@
 <div id="status">Ikke aktivert ennå.</div>
 
 <div id="etterpaa" class="skjult">
-  <p class="sub"><strong>Siste steg:</strong> trykk Kopier, og lim teksten inn i chatten med Claude. Da kan rutinene på PC-en varsle denne telefonen.</p>
-  <button id="kopier" class="sekundaer">Kopier abonnementet</button>
+  <p class="sub"><strong>Siste steg</strong> — telefonen må si fra til PC-en. Trykk knappen under: e-postappen åpnes ferdig utfylt, du trykker bare Send.</p>
+  <button id="send">Send abonnementet til PC-en</button>
+  <button id="kopier" class="sekundaer">…eller kopier det manuelt</button>
   <textarea id="abonnement" readonly></textarea>
 </div>
 
@@ -111,6 +112,13 @@ document.getElementById('slaaPaa').addEventListener('click', async () => {
   } catch (e) {
     sett('Feilet: ' + e.message, 'feil');
   }
+});
+
+document.getElementById('send').addEventListener('click', () => {
+  const emne = 'NSKVARSEL-ABONNEMENT';
+  const kropp = 'Ikke endre noe under denne linjen.\n\n' + felt.value;
+  location.href = `mailto:irma@nettskred.no?subject=${encodeURIComponent(emne)}&body=${encodeURIComponent(kropp)}`;
+  sett('E-postappen skal ha åpnet seg. Trykk Send, så plukker Claude det opp automatisk.', 'ok');
 });
 
 document.getElementById('kopier').addEventListener('click', async () => {
