@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nettskred varsler</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1220">
+<link rel="apple-touch-icon" href="ikon.png">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 20px 48px;
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0b1220; color: #e7edf7;
+    max-width: 34rem; margin-inline: auto;
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 28px; }
+  button {
+    width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 600;
+    border: 0; border-radius: 12px; cursor: pointer;
+    background: #2563eb; color: #fff; margin-bottom: 12px;
+  }
+  button.sekundaer { background: #1e293b; color: #e7edf7; }
+  button:disabled { opacity: .5; cursor: default; }
+  #status {
+    padding: 14px 16px; border-radius: 12px; margin: 20px 0;
+    background: #111c30; border-left: 4px solid #334155; white-space: pre-wrap;
+  }
+  #status.ok { border-left-color: #22c55e; }
+  #status.feil { border-left-color: #ef4444; }
+  textarea {
+    width: 100%; height: 140px; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px; background: #060c16; color: #94a3b8;
+    border: 1px solid #1e293b; border-radius: 10px; padding: 12px;
+  }
+  .skjult { display: none; }
+  ol { padding-left: 20px; color: #94a3b8; font-size: .92rem; }
+  li { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<h1>Nettskred varsler</h1>
+<p class="sub">Slå på for å få beskjed fra de skedulerte rutinene rett på mobilen.</p>
+
+<button id="slaaPaa">Slå på varsler</button>
+<button id="test" class="sekundaer skjult">Send testvarsel til meg selv</button>
+
+<div id="status">Ikke aktivert ennå.</div>
+
+<div id="etterpaa" class="skjult">
+  <p class="sub"><strong>Siste steg:</strong> trykk Kopier, og lim teksten inn i chatten med Claude. Da kan rutinene på PC-en varsle denne telefonen.</p>
+  <button id="kopier" class="sekundaer">Kopier abonnementet</button>
+  <textarea id="abonnement" readonly></textarea>
+</div>
+
+<hr style="border:0;border-top:1px solid #1e293b;margin:32px 0 20px">
+<ol>
+  <li><strong>iPhone:</strong> du må først legge siden til på Hjem-skjermen (Del → Legg til på Hjem-skjerm) og åpne den derfra. Safari tillater ikke varsler ellers.</li>
+  <li><strong>Android:</strong> fungerer rett i Chrome. Legg den gjerne til på Hjem-skjermen likevel.</li>
+  <li>Sier nettleseren nei uten å spørre, er varsler blokkert for nettstedet — skru det på i nettleserens innstillinger for siden.</li>
+</ol>
+
+<script>
+const VAPID_PUBLIC = 'BEYKL5o20_0wPHYQ_wDsOH2ivzZl4W0x-WWcbO5M5PrdA-WvyFzGe9VYVSP4TnwOqcyzuy1QaxzXtEq07nCpHEI';
+
+const status = document.getElementById('status');
+const etterpaa = document.getElementById('etterpaa');
+const felt = document.getElementById('abonnement');
+const knappTest = document.getElementById('test');
+
+function sett(tekst, klasse = '') {
+  status.textContent = tekst;
+  status.className = klasse;
+}
+
+function base64TilUint8(base64) {
+  const pad = '='.repeat((4 - (base64.length % 4)) % 4);
+  const b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(b64);
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+
+document.getElementById('slaaPaa').addEventListener('click', async () => {
+  try {
+    if (!('serviceWorker' in navigator)) throw new Error('Nettleseren støtter ikke service workers.');
+    if (!('PushManager' in window)) throw new Error('Nettleseren støtter ikke Web Push. På iPhone må siden åpnes fra Hjem-skjermen.');
+
+    sett('Registrerer …');
+    const reg = await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+
+    const tillatelse = await Notification.requestPermission();
+    if (tillatelse !== 'granted') throw new Error('Du sa nei til varsler. Skru det på i nettleserens innstillinger for siden.');
+
+    let ab = await reg.pushManager.getSubscription();
+    if (!ab) {
+      ab = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: base64TilUint8(VAPID_PUBLIC),
+      });
+    }
+
+    felt.value = JSON.stringify(ab.toJSON());
+    etterpaa.classList.remove('skjult');
+    knappTest.classList.remove('skjult');
+    sett('Varsler er slått på for denne telefonen.', 'ok');
+  } catch (e) {
+    sett('Feilet: ' + e.message, 'feil');
+  }
+});
+
+document.getElementById('kopier').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(felt.value);
+    sett('Kopiert. Lim det inn i chatten med Claude.', 'ok');
+  } catch {
+    felt.select();
+    sett('Merk teksten og kopier den manuelt.', '');
+  }
+});
+
+knappTest.addEventListener('click', async () => {
+  const reg = await navigator.serviceWorker.ready;
+  await reg.showNotification('Nettskred varsler', {
+    body: 'Slik ser et varsel ut. Kommer dette, virker telefonen.',
+    icon: 'ikon.png',
+    tag: 'test',
+  });
+  sett('Testvarsel vist lokalt. Det beviser at telefonen kan vise varsler — men ikke at PC-en når fram. Det tester vi etterpå.', 'ok');
+});
+</script>
+</body>
+</html>
