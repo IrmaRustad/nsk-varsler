@@ -51,6 +51,8 @@
 
 <div id="status">Ikke aktivert ennå.</div>
 
+<div id="mottak" style="padding:14px 16px;border-radius:12px;margin:20px 0;background:#111c30;border-left:4px solid #64748b">Mottakslogg: leser …</div>
+
 <div id="etterpaa" class="skjult">
   <p class="sub"><strong>Siste steg</strong> — telefonen må si fra til PC-en. Trykk knappen under: e-postappen åpnes ferdig utfylt, du trykker bare Send.</p>
   <button id="send">Send abonnementet til PC-en</button>
@@ -113,6 +115,21 @@ document.getElementById('slaaPaa').addEventListener('click', async () => {
     sett('Feilet: ' + e.message, 'feil');
   }
 });
+
+async function lesMottak() {
+  const boks = document.getElementById('mottak');
+  try {
+    const c = await caches.open('nsk-varsellogg');
+    const r = await c.match('/siste');
+    if (!r) { boks.textContent = 'Mottakslogg: ingen push mottatt av telefonen enna.'; boks.style.borderLeftColor = '#ef4444'; return; }
+    const d = await r.json();
+    const t = new Date(d.tid).toLocaleTimeString('no-NO');
+    boks.textContent = 'Mottakslogg: SISTE PUSH KOM KL. ' + t + '\n' + d.tekst;
+    boks.style.borderLeftColor = '#22c55e';
+  } catch (e) { boks.textContent = 'Mottakslogg: kunne ikke leses (' + e.message + ')'; }
+}
+navigator.serviceWorker?.ready.then(lesMottak).catch(() => lesMottak());
+setInterval(lesMottak, 3000);
 
 document.getElementById('send').addEventListener('click', () => {
   const emne = 'NSKVARSEL-ABONNEMENT';
