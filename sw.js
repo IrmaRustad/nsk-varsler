@@ -30,7 +30,7 @@ self.addEventListener('push', (event) => {
         badge: 'ikon.png',
         tag: d.tag || 'nsk-varsel',
         renotify: true,
-        data: { url: d.url || './', level: d.level || 'info' },
+        data: { url: (d.url && d.url !== '/') ? d.url : 'https://irmarustad.github.io/nsk-varsler/', level: d.level || 'info' },
       })
     } catch (e) {
       // Faller tilbake til det aller enkleste hvis noe i opsjonene feiler
@@ -42,7 +42,8 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const maal = (event.notification.data && event.notification.data.url) || './'
+  let maal = (event.notification.data && event.notification.data.url) || './'
+  if (maal === '/') maal = 'https://irmarustad.github.io/nsk-varsler/'
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((liste) => {
       for (const k of liste) if ('focus' in k) { k.navigate(maal); return k.focus() }
