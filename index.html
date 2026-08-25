@@ -11,73 +11,73 @@
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 24px 20px 48px;
+    margin: 0 auto; padding: 24px 20px 48px;
     font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #0b1220; color: #e7edf7;
-    max-width: 34rem; margin-inline: auto;
+    background: #0b1220; color: #e7edf7; max-width: 34rem;
   }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; }
-  p.sub { color: #94a3b8; margin: 0 0 28px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; font-size: .95rem; }
   button {
-    width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 600;
+    width: 100%; padding: 15px; font-size: 1rem; font-weight: 600;
     border: 0; border-radius: 12px; cursor: pointer;
-    background: #2563eb; color: #fff; margin-bottom: 12px;
+    background: #2563eb; color: #fff; margin-bottom: 10px;
   }
   button.sekundaer { background: #1e293b; color: #e7edf7; }
-  button:disabled { opacity: .5; cursor: default; }
-  #status {
-    padding: 14px 16px; border-radius: 12px; margin: 20px 0;
+  .boks {
+    padding: 14px 16px; border-radius: 12px; margin: 0 0 14px;
     background: #111c30; border-left: 4px solid #334155; white-space: pre-wrap;
+    font-size: .95rem;
   }
-  #status.ok { border-left-color: #22c55e; }
-  #status.feil { border-left-color: #ef4444; }
+  .ok { border-left-color: #22c55e; }
+  .feil { border-left-color: #ef4444; }
+  .vent { border-left-color: #f59e0b; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: #7dd3fc; }
   textarea {
-    width: 100%; height: 140px; font-family: ui-monospace, Menlo, Consolas, monospace;
+    width: 100%; height: 110px; font-family: ui-monospace, Menlo, Consolas, monospace;
     font-size: 11px; background: #060c16; color: #94a3b8;
-    border: 1px solid #1e293b; border-radius: 10px; padding: 12px;
+    border: 1px solid #1e293b; border-radius: 10px; padding: 10px; margin-top: 8px;
   }
   .skjult { display: none; }
-  ol { padding-left: 20px; color: #94a3b8; font-size: .92rem; }
+  ol { padding-left: 20px; color: #94a3b8; font-size: .9rem; }
   li { margin-bottom: 8px; }
 </style>
 </head>
 <body>
 
 <h1>Nettskred varsler</h1>
-<p class="sub">Slå på for å få beskjed fra de skedulerte rutinene rett på mobilen.</p>
+<p class="sub">Status oppdateres av seg selv. Du trenger ikke trykke på noe når alt er grønt.</p>
 
-<button id="slaaPaa">Slå på varsler</button>
-<button id="test" class="sekundaer skjult">Send testvarsel til meg selv</button>
+<div id="abo" class="boks">Sjekker om varsler er på …</div>
+<div id="mottak" class="boks">Mottakslogg: leser …</div>
 
-<div id="status">Ikke aktivert ennå.</div>
-
-<div id="mottak" style="padding:14px 16px;border-radius:12px;margin:20px 0;background:#111c30;border-left:4px solid #64748b">Mottakslogg: leser …</div>
+<button id="slaaPaa" class="sekundaer">Slå på varsler / registrer på nytt</button>
+<button id="test" class="sekundaer">Vis et testvarsel lokalt</button>
 
 <div id="etterpaa" class="skjult">
-  <p class="sub"><strong>Siste steg</strong> — telefonen må si fra til PC-en. Trykk knappen under: e-postappen åpnes ferdig utfylt, du trykker bare Send.</p>
+  <p class="sub"><strong>Telefonen har fått et NYTT abonnement.</strong> PC-en kjenner det ikke ennå. Trykk under, så åpner e-postappen seg ferdig utfylt — du trykker bare Send.</p>
   <button id="send">Send abonnementet til PC-en</button>
-  <button id="kopier" class="sekundaer">…eller kopier det manuelt</button>
   <textarea id="abonnement" readonly></textarea>
 </div>
 
-<hr style="border:0;border-top:1px solid #1e293b;margin:32px 0 20px">
+<hr style="border:0;border-top:1px solid #1e293b;margin:28px 0 18px">
 <ol>
-  <li><strong>iPhone:</strong> du må først legge siden til på Hjem-skjermen (Del → Legg til på Hjem-skjerm) og åpne den derfra. Safari tillater ikke varsler ellers.</li>
-  <li><strong>Android:</strong> fungerer rett i Chrome. Legg den gjerne til på Hjem-skjermen likevel.</li>
-  <li>Sier nettleseren nei uten å spørre, er varsler blokkert for nettstedet — skru det på i nettleserens innstillinger for siden.</li>
+  <li><strong>Kommer ingen varsler, men mottaksloggen er grønn?</strong> Da mottar telefonen dem, men viser dem ikke. Sjekk varselinnstillingene for Chrome.</li>
+  <li><strong>Er mottaksloggen rød?</strong> Da stoppes meldingen før den når Chrome. Innstillinger → Apper → Chrome → Batteri → <strong>Ubegrenset</strong>.</li>
+  <li><strong>iPhone:</strong> siden må være lagt til på Hjem-skjermen og åpnes derfra.</li>
 </ol>
 
 <script>
 const VAPID_PUBLIC = 'BEYKL5o20_0wPHYQ_wDsOH2ivzZl4W0x-WWcbO5M5PrdA-WvyFzGe9VYVSP4TnwOqcyzuy1QaxzXtEq07nCpHEI';
+const KJENT_HALE = 'gT7F5bPwmcV9';
 
-const status = document.getElementById('status');
+const boksAbo = document.getElementById('abo');
+const boksMottak = document.getElementById('mottak');
 const etterpaa = document.getElementById('etterpaa');
 const felt = document.getElementById('abonnement');
-const knappTest = document.getElementById('test');
 
-function sett(tekst, klasse = '') {
-  status.textContent = tekst;
-  status.className = klasse;
+function vis(el, tekst, klasse) {
+  el.textContent = tekst;
+  el.className = 'boks' + (klasse ? ' ' + klasse : '');
 }
 
 function base64TilUint8(base64) {
@@ -87,75 +87,91 @@ function base64TilUint8(base64) {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
-document.getElementById('slaaPaa').addEventListener('click', async () => {
+async function sjekkStatus() {
   try {
-    if (!('serviceWorker' in navigator)) throw new Error('Nettleseren støtter ikke service workers.');
-    if (!('PushManager' in window)) throw new Error('Nettleseren støtter ikke Web Push. På iPhone må siden åpnes fra Hjem-skjermen.');
-
-    sett('Registrerer …');
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      vis(boksAbo, 'Denne nettleseren støtter ikke Web Push. På iPhone må siden åpnes fra Hjem-skjermen.', 'feil');
+      return;
+    }
     const reg = await navigator.serviceWorker.register('sw.js');
     await navigator.serviceWorker.ready;
 
-    const tillatelse = await Notification.requestPermission();
-    if (tillatelse !== 'granted') throw new Error('Du sa nei til varsler. Skru det på i nettleserens innstillinger for siden.');
+    const tillatelse = Notification.permission;
+    const ab = await reg.pushManager.getSubscription();
 
-    let ab = await reg.pushManager.getSubscription();
     if (!ab) {
-      ab = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: base64TilUint8(VAPID_PUBLIC),
-      });
+      vis(boksAbo, 'Varsler er IKKE på for denne telefonen.\nTrykk «Slå på varsler» under.', 'feil');
+      return;
     }
 
-    felt.value = JSON.stringify(ab.toJSON());
-    etterpaa.classList.remove('skjult');
-    knappTest.classList.remove('skjult');
-    sett('Varsler er slått på for denne telefonen.', 'ok');
+    const hale = ab.endpoint.slice(-12);
+    const kjent = hale === KJENT_HALE;
+    vis(boksAbo,
+      'Varsler er PÅ for denne telefonen.\n' +
+      'Tillatelse: ' + tillatelse + '\n' +
+      'Abonnement: …' + hale + (kjent ? '  ✓ PC-en kjenner dette' : '  ⚠ NYTT — PC-en kjenner det IKKE'),
+      kjent && tillatelse === 'granted' ? 'ok' : 'vent');
+
+    if (!kjent) {
+      felt.value = JSON.stringify(ab.toJSON());
+      etterpaa.classList.remove('skjult');
+    }
   } catch (e) {
-    sett('Feilet: ' + e.message, 'feil');
+    vis(boksAbo, 'Kunne ikke lese status: ' + e.message, 'feil');
   }
-});
+}
 
 async function lesMottak() {
-  const boks = document.getElementById('mottak');
   try {
     const c = await caches.open('nsk-varsellogg');
     const r = await c.match('/siste');
-    if (!r) { boks.textContent = 'Mottakslogg: ingen push mottatt av telefonen enna.'; boks.style.borderLeftColor = '#ef4444'; return; }
+    if (!r) {
+      vis(boksMottak, 'Mottakslogg: telefonen har ALDRI mottatt en push.\nDa stoppes den før den når Chrome — se punkt 2 nederst.', 'feil');
+      return;
+    }
     const d = await r.json();
-    const t = new Date(d.tid).toLocaleTimeString('no-NO');
-    boks.textContent = 'Mottakslogg: SISTE PUSH KOM KL. ' + t + '\n' + d.tekst;
-    boks.style.borderLeftColor = '#22c55e';
-  } catch (e) { boks.textContent = 'Mottakslogg: kunne ikke leses (' + e.message + ')'; }
+    const t = new Date(d.tid);
+    const min = Math.round((Date.now() - t.getTime()) / 60000);
+    vis(boksMottak,
+      'Mottakslogg: siste push kom ' + t.toLocaleTimeString('no-NO') +
+      ' (' + (min < 1 ? 'nå nettopp' : 'for ' + min + ' min siden') + ')\n' + d.tekst,
+      'ok');
+  } catch (e) {
+    vis(boksMottak, 'Mottakslogg kunne ikke leses: ' + e.message, 'feil');
+  }
 }
-navigator.serviceWorker?.ready.then(lesMottak).catch(() => lesMottak());
-setInterval(lesMottak, 3000);
 
-document.getElementById('send').addEventListener('click', () => {
-  const emne = 'NSKVARSEL-ABONNEMENT';
-  const kropp = 'Ikke endre noe under denne linjen.\n\n' + felt.value;
-  location.href = `mailto:irma@nettskred.no?subject=${encodeURIComponent(emne)}&body=${encodeURIComponent(kropp)}`;
-  sett('E-postappen skal ha åpnet seg. Trykk Send, så plukker Claude det opp automatisk.', 'ok');
-});
+async function oppdater() { await sjekkStatus(); await lesMottak(); }
+oppdater();
+setInterval(oppdater, 3000);
 
-document.getElementById('kopier').addEventListener('click', async () => {
+document.getElementById('slaaPaa').addEventListener('click', async () => {
   try {
-    await navigator.clipboard.writeText(felt.value);
-    sett('Kopiert. Lim det inn i chatten med Claude.', 'ok');
-  } catch {
-    felt.select();
-    sett('Merk teksten og kopier den manuelt.', '');
+    const reg = await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+    const tillatelse = await Notification.requestPermission();
+    if (tillatelse !== 'granted') throw new Error('Du sa nei til varsler. Skru det på i nettleserens innstillinger for siden.');
+    let ab = await reg.pushManager.getSubscription();
+    if (!ab) {
+      ab = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64TilUint8(VAPID_PUBLIC) });
+    }
+    await oppdater();
+  } catch (e) {
+    vis(boksAbo, 'Feilet: ' + e.message, 'feil');
   }
 });
 
-knappTest.addEventListener('click', async () => {
+document.getElementById('send').addEventListener('click', () => {
+  const kropp = 'Ikke endre noe under denne linjen.\n\n' + felt.value;
+  location.href = 'mailto:irma@nettskred.no?subject=' + encodeURIComponent('NSKVARSEL-ABONNEMENT') + '&body=' + encodeURIComponent(kropp);
+});
+
+document.getElementById('test').addEventListener('click', async () => {
   const reg = await navigator.serviceWorker.ready;
   await reg.showNotification('Nettskred varsler', {
-    body: 'Slik ser et varsel ut. Kommer dette, virker telefonen.',
-    icon: 'ikon.png',
-    tag: 'test',
+    body: 'Lokalt testvarsel. Ser du dette, kan telefonen VISE varsler.',
+    icon: 'ikon.png', tag: 'test',
   });
-  sett('Testvarsel vist lokalt. Det beviser at telefonen kan vise varsler — men ikke at PC-en når fram. Det tester vi etterpå.', 'ok');
 });
 </script>
 </body>
