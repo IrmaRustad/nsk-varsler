@@ -30,7 +30,7 @@ self.addEventListener('push', (event) => {
         badge: 'ikon.png',
         tag: d.tag || 'nsk-varsel',
         renotify: true,
-        data: { url: (d.url && d.url !== '/') ? d.url : 'https://irmarustad.github.io/nsk-varsler/', level: d.level || 'info' },
+        data: { url: (d.url && d.url !== '/') ? d.url : 'https://claude.ai/code/artifact/13f750fc-9eb0-41d9-af5f-7d1addfcced6', level: d.level || 'info' },
       })
     } catch (e) {
       // Faller tilbake til det aller enkleste hvis noe i opsjonene feiler
@@ -43,7 +43,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   let maal = (event.notification.data && event.notification.data.url) || './'
-  if (maal === '/') maal = 'https://irmarustad.github.io/nsk-varsler/'
+  if (maal === '/') maal = 'https://claude.ai/code/artifact/13f750fc-9eb0-41d9-af5f-7d1addfcced6'
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((liste) => {
       for (const k of liste) if ('focus' in k) { k.navigate(maal); return k.focus() }
