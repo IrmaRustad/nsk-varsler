@@ -48,7 +48,7 @@
 <p class="sub">Status oppdateres av seg selv. Du trenger ikke trykke på noe når alt er grønt.</p>
 
 <div id="abo" class="boks">Sjekker om varsler er på …</div>
-<div id="mottak" class="boks">Mottakslogg: leser …</div>
+<div id="mottak" class="boks">Leser siste varsel …</div>
 
 <button id="slaaPaa" class="sekundaer">Slå på varsler / registrer på nytt</button>
 <button id="test" class="sekundaer">Vis et testvarsel lokalt</button>
@@ -106,11 +106,13 @@ async function sjekkStatus() {
 
     const hale = ab.endpoint.slice(-12);
     const kjent = hale === KJENT_HALE;
+    const altOk = kjent && tillatelse === 'granted';
     vis(boksAbo,
-      'Varsler er PÅ for denne telefonen.\n' +
-      'Tillatelse: ' + tillatelse + '\n' +
-      'Abonnement: …' + hale + (kjent ? '  ✓ PC-en kjenner dette' : '  ⚠ NYTT — PC-en kjenner det IKKE'),
-      kjent && tillatelse === 'granted' ? 'ok' : 'vent');
+      altOk
+        ? 'Varsler virker på denne telefonen.'
+        : 'Noe stemmer ikke.\nTillatelse: ' + tillatelse + '\nAbonnement: …' + hale +
+          (kjent ? '' : '  ⚠ NYTT — PC-en kjenner det ikke'),
+      altOk ? 'ok' : 'vent');
 
     if (!kjent) {
       felt.value = JSON.stringify(ab.toJSON());
@@ -126,18 +128,30 @@ async function lesMottak() {
     const c = await caches.open('nsk-varsellogg');
     const r = await c.match('/siste');
     if (!r) {
-      vis(boksMottak, 'Mottakslogg: telefonen har ALDRI mottatt en push.\nDa stoppes den før den når Chrome — se punkt 2 nederst.', 'feil');
+      vis(boksMottak, 'Ingen varsler mottatt på denne telefonen ennå.', 'vent');
       return;
     }
     const d = await r.json();
     const t = new Date(d.tid);
     const min = Math.round((Date.now() - t.getTime()) / 60000);
-    vis(boksMottak,
-      'Mottakslogg: siste push kom ' + t.toLocaleTimeString('no-NO') +
-      ' (' + (min < 1 ? 'nå nettopp' : 'for ' + min + ' min siden') + ')\n' + d.tekst,
-      'ok');
+    let naar;
+    if (min < 1) naar = 'nå nettopp';
+    else if (min < 60) naar = 'for ' + min + ' min siden';
+    else if (min < 1440) naar = 'for ' + Math.round(min / 60) + ' t siden';
+    else naar = 'for ' + Math.round(min / 1440) + ' d siden';
+
+    // Vis MELDINGEN, ikke raadataene. Loggen er for Irma, ikke for feilsoeking (26.08).
+    let tekst = d.tekst || '';
+    try {
+      const p = JSON.parse(tekst);
+      tekst = (p.body || p.title || '').trim();
+    } catch (e) {
+      tekst = tekst.replace(/^\{.*?"body"\s*:\s*"/, '').replace(/",.*$/, '');
+    }
+
+    vis(boksMottak, 'Siste varsel ' + naar + ' (' + t.toLocaleTimeString('no-NO', {hour: '2-digit', minute: '2-digit'}) + ')\n' + tekst, 'ok');
   } catch (e) {
-    vis(boksMottak, 'Mottakslogg kunne ikke leses: ' + e.message, 'feil');
+    vis(boksMottak, 'Kunne ikke lese varselloggen: ' + e.message, 'feil');
   }
 }
 
