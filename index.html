@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nettskred varsler</title>
+<title>Nettskred</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b1220">
 <link rel="apple-touch-icon" href="ikon.png">
@@ -11,181 +11,195 @@
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   body {
-    margin: 0 auto; padding: 24px 20px 48px;
-    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #0b1220; color: #e7edf7; max-width: 34rem;
+    margin: 0 auto; padding: 28px 22px 40px; max-width: 34rem;
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0b1220; color: #e7edf7;
   }
-  h1 { font-size: 1.35rem; margin: 0 0 4px; }
-  p.sub { color: #94a3b8; margin: 0 0 20px; font-size: .95rem; }
-  button {
-    width: 100%; padding: 15px; font-size: 1rem; font-weight: 600;
-    border: 0; border-radius: 12px; cursor: pointer;
-    background: #2563eb; color: #fff; margin-bottom: 10px;
+  header { border-bottom: 1px solid #1e293b; padding-bottom: 14px; margin-bottom: 22px; }
+  h1 { font-size: 1.5rem; margin: 0; letter-spacing: -0.01em; }
+  .dato { color: #94a3b8; font-size: .9rem; margin-top: 3px; }
+  h2 {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .09em;
+    color: #94a3b8; margin: 26px 0 10px; font-weight: 600;
   }
-  button.sekundaer { background: #1e293b; color: #e7edf7; }
-  .boks {
-    padding: 14px 16px; border-radius: 12px; margin: 0 0 14px;
-    background: #111c30; border-left: 4px solid #334155; white-space: pre-wrap;
-    font-size: .95rem;
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    padding: 11px 0 11px 26px; border-bottom: 1px solid #16233a;
+    position: relative; font-size: .97rem;
   }
-  .ok { border-left-color: #22c55e; }
-  .feil { border-left-color: #ef4444; }
-  .vent { border-left-color: #f59e0b; }
-  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: #7dd3fc; }
+  li:last-child { border-bottom: 0; }
+  li::before { position: absolute; left: 0; top: 10px; font-size: .95rem; }
+  .krav li::before { content: "▸"; color: #f59e0b; }
+  .krav li.haster::before { content: "●"; color: #ef4444; }
+  .gjort li::before { content: "✓"; color: #22c55e; }
+  .naar { color: #f8fafc; font-weight: 600; }
+  .tom { color: #64748b; font-style: italic; padding: 11px 0; }
+  footer {
+    margin-top: 34px; padding-top: 14px; border-top: 1px solid #1e293b;
+    color: #64748b; font-size: .8rem;
+  }
+  footer.feil { color: #fca5a5; }
+  footer button {
+    margin-top: 12px; width: 100%; padding: 11px; font-size: .88rem;
+    border: 1px solid #1e293b; border-radius: 10px;
+    background: transparent; color: #94a3b8; cursor: pointer;
+  }
+  #oppsett { display: none; }
+  #oppsett.vis { display: block; }
   textarea {
-    width: 100%; height: 110px; font-family: ui-monospace, Menlo, Consolas, monospace;
-    font-size: 11px; background: #060c16; color: #94a3b8;
-    border: 1px solid #1e293b; border-radius: 10px; padding: 10px; margin-top: 8px;
+    width: 100%; height: 96px; margin-top: 10px; padding: 10px;
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px;
+    background: #060c16; color: #94a3b8; border: 1px solid #1e293b; border-radius: 8px;
   }
-  .skjult { display: none; }
-  ol { padding-left: 20px; color: #94a3b8; font-size: .9rem; }
-  li { margin-bottom: 8px; }
 </style>
 </head>
 <body>
 
-<h1>Nettskred varsler</h1>
-<p class="sub">Status oppdateres av seg selv. Du trenger ikke trykke på noe når alt er grønt.</p>
+<header>
+  <h1>Nettskred</h1>
+  <div class="dato" id="dato">Henter rapport …</div>
+</header>
 
-<div id="abo" class="boks">Sjekker om varsler er på …</div>
-<div id="mottak" class="boks">Leser siste varsel …</div>
+<div id="rapport"></div>
 
-<button id="slaaPaa" class="sekundaer">Slå på varsler / registrer på nytt</button>
-<button id="test" class="sekundaer">Vis et testvarsel lokalt</button>
-
-<div id="etterpaa" class="skjult">
-  <p class="sub"><strong>Telefonen har fått et NYTT abonnement.</strong> PC-en kjenner det ikke ennå. Trykk under, så åpner e-postappen seg ferdig utfylt — du trykker bare Send.</p>
-  <button id="send">Send abonnementet til PC-en</button>
-  <textarea id="abonnement" readonly></textarea>
-</div>
-
-<hr style="border:0;border-top:1px solid #1e293b;margin:28px 0 18px">
-<ol>
-  <li><strong>Kommer ingen varsler, men mottaksloggen er grønn?</strong> Da mottar telefonen dem, men viser dem ikke. Sjekk varselinnstillingene for Chrome.</li>
-  <li><strong>Er mottaksloggen rød?</strong> Da stoppes meldingen før den når Chrome. Innstillinger → Apper → Chrome → Batteri → <strong>Ubegrenset</strong>.</li>
-  <li><strong>iPhone:</strong> siden må være lagt til på Hjem-skjermen og åpnes derfra.</li>
-</ol>
+<footer id="footer">
+  <span id="status">Kobler til …</span>
+  <div id="oppsett">
+    <button id="slaaPaa">Slå på varsler på denne telefonen</button>
+    <button id="send" style="display:none">Send abonnementet til PC-en</button>
+    <textarea id="abonnement" readonly style="display:none"></textarea>
+  </div>
+</footer>
 
 <script>
 const VAPID_PUBLIC = 'BEYKL5o20_0wPHYQ_wDsOH2ivzZl4W0x-WWcbO5M5PrdA-WvyFzGe9VYVSP4TnwOqcyzuy1QaxzXtEq07nCpHEI';
 const KJENT_HALE = 'gT7F5bPwmcV9';
 
-const boksAbo = document.getElementById('abo');
-const boksMottak = document.getElementById('mottak');
-const etterpaa = document.getElementById('etterpaa');
-const felt = document.getElementById('abonnement');
+const elDato = document.getElementById('dato');
+const elRapport = document.getElementById('rapport');
+const elFooter = document.getElementById('footer');
+const elStatus = document.getElementById('status');
+const elOppsett = document.getElementById('oppsett');
+const elFelt = document.getElementById('abonnement');
 
-function vis(el, tekst, klasse) {
-  el.textContent = tekst;
-  el.className = 'boks' + (klasse ? ' ' + klasse : '');
-}
-
-function base64TilUint8(base64) {
-  const pad = '='.repeat((4 - (base64.length % 4)) % 4);
-  const b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+function base64TilUint8(b64s) {
+  const pad = '='.repeat((4 - (b64s.length % 4)) % 4);
+  const b64 = (b64s + pad).replace(/-/g, '+').replace(/_/g, '/');
   const raw = atob(b64);
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+
+function seksjon(tittel, punkter, klasse) {
+  if (!punkter || !punkter.length) return '';
+  const rader = punkter.map((p) => {
+    const haster = klasse === 'krav' && /^\s*!/.test(p);
+    const tekst = String(p).replace(/^\s*!/, '').trim();
+    // «14:30 møte med Even» → klokkeslettet uthevet
+    const m = tekst.match(/^(\d{1,2}[:.]\d{2}|\d{1,2}\.\d{1,2}\.?)\s+(.*)$/);
+    const kropp = m
+      ? '<span class="naar">' + esc(m[1]) + '</span> ' + esc(m[2])
+      : esc(tekst);
+    return '<li' + (haster ? ' class="haster"' : '') + '>' + kropp + '</li>';
+  }).join('');
+  return '<h2>' + esc(tittel) + '</h2><ul class="' + klasse + '">' + rader + '</ul>';
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function visRapport(r, tid) {
+  const d = tid ? new Date(tid) : new Date();
+  const dag = d.toLocaleDateString('no-NO', { weekday: 'long', day: 'numeric', month: 'long' });
+  elDato.textContent = dag.charAt(0).toUpperCase() + dag.slice(1) +
+    ' · oppdatert ' + d.toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' });
+
+  let html = seksjon('Krever deg', r.krever, 'krav');
+  if (!r.krever || !r.krever.length) html += '<h2>Krever deg</h2><div class="tom">Ingenting venter på deg nå.</div>';
+  html += seksjon('Gjort', r.gjort, 'gjort');
+  elRapport.innerHTML = html;
+}
+
+async function lesRapport() {
+  try {
+    const c = await caches.open('nsk-varsellogg');
+    const r = await c.match('/siste');
+    if (!r) {
+      elDato.textContent = 'Ingen rapport mottatt ennå';
+      elRapport.innerHTML = '<div class="tom">Rapporten kommer med morgenvarselet.</div>';
+      return;
+    }
+    const d = await r.json();
+    let p = {};
+    try { p = JSON.parse(d.tekst); } catch (e) { p = { body: d.tekst }; }
+    if (p.krever || p.gjort) visRapport(p, d.tid);
+    else {
+      // Eldre varsel uten rapportdel — vis meldingen alene
+      visRapport({ krever: [p.body || ''] }, d.tid);
+    }
+  } catch (e) {
+    elRapport.innerHTML = '<div class="tom">Kunne ikke lese rapporten.</div>';
+  }
 }
 
 async function sjekkStatus() {
   try {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      vis(boksAbo, 'Denne nettleseren støtter ikke Web Push. På iPhone må siden åpnes fra Hjem-skjermen.', 'feil');
+      elFooter.className = 'feil';
+      elStatus.textContent = 'Nettleseren støtter ikke varsler. På iPhone: legg siden til på Hjem-skjermen.';
       return;
     }
     const reg = await navigator.serviceWorker.register('sw.js');
     await navigator.serviceWorker.ready;
-
-    const tillatelse = Notification.permission;
     const ab = await reg.pushManager.getSubscription();
+    const kjent = ab && ab.endpoint.slice(-12) === KJENT_HALE;
 
-    if (!ab) {
-      vis(boksAbo, 'Varsler er IKKE på for denne telefonen.\nTrykk «Slå på varsler» under.', 'feil');
+    if (ab && kjent && Notification.permission === 'granted') {
+      elFooter.className = '';
+      elStatus.textContent = 'Varsler er på.';
+      elOppsett.className = '';
       return;
     }
-
-    const hale = ab.endpoint.slice(-12);
-    const kjent = hale === KJENT_HALE;
-    const altOk = kjent && tillatelse === 'granted';
-    vis(boksAbo,
-      altOk
-        ? 'Varsler virker på denne telefonen.'
-        : 'Noe stemmer ikke.\nTillatelse: ' + tillatelse + '\nAbonnement: …' + hale +
-          (kjent ? '' : '  ⚠ NYTT — PC-en kjenner det ikke'),
-      altOk ? 'ok' : 'vent');
-
-    if (!kjent) {
-      felt.value = JSON.stringify(ab.toJSON());
-      etterpaa.classList.remove('skjult');
+    elFooter.className = 'feil';
+    elStatus.textContent = !ab
+      ? 'Varsler er ikke slått på for denne telefonen.'
+      : (!kjent ? 'Telefonen har et nytt abonnement som PC-en ikke kjenner.' : 'Varsler er blokkert i nettleseren.');
+    elOppsett.className = 'vis';
+    if (ab && !kjent) {
+      elFelt.value = JSON.stringify(ab.toJSON());
+      elFelt.style.display = 'block';
+      document.getElementById('send').style.display = 'block';
     }
   } catch (e) {
-    vis(boksAbo, 'Kunne ikke lese status: ' + e.message, 'feil');
+    elFooter.className = 'feil';
+    elStatus.textContent = 'Kunne ikke lese status: ' + e.message;
+    elOppsett.className = 'vis';
   }
 }
 
-async function lesMottak() {
-  try {
-    const c = await caches.open('nsk-varsellogg');
-    const r = await c.match('/siste');
-    if (!r) {
-      vis(boksMottak, 'Ingen varsler mottatt på denne telefonen ennå.', 'vent');
-      return;
-    }
-    const d = await r.json();
-    const t = new Date(d.tid);
-    const min = Math.round((Date.now() - t.getTime()) / 60000);
-    let naar;
-    if (min < 1) naar = 'nå nettopp';
-    else if (min < 60) naar = 'for ' + min + ' min siden';
-    else if (min < 1440) naar = 'for ' + Math.round(min / 60) + ' t siden';
-    else naar = 'for ' + Math.round(min / 1440) + ' d siden';
-
-    // Vis MELDINGEN, ikke raadataene. Loggen er for Irma, ikke for feilsoeking (26.08).
-    let tekst = d.tekst || '';
-    try {
-      const p = JSON.parse(tekst);
-      tekst = (p.body || p.title || '').trim();
-    } catch (e) {
-      tekst = tekst.replace(/^\{.*?"body"\s*:\s*"/, '').replace(/",.*$/, '');
-    }
-
-    vis(boksMottak, 'Siste varsel ' + naar + ' (' + t.toLocaleTimeString('no-NO', {hour: '2-digit', minute: '2-digit'}) + ')\n' + tekst, 'ok');
-  } catch (e) {
-    vis(boksMottak, 'Kunne ikke lese varselloggen: ' + e.message, 'feil');
-  }
-}
-
-async function oppdater() { await sjekkStatus(); await lesMottak(); }
+async function oppdater() { await lesRapport(); await sjekkStatus(); }
 oppdater();
-setInterval(oppdater, 3000);
+setInterval(oppdater, 5000);
 
 document.getElementById('slaaPaa').addEventListener('click', async () => {
   try {
     const reg = await navigator.serviceWorker.register('sw.js');
     await navigator.serviceWorker.ready;
-    const tillatelse = await Notification.requestPermission();
-    if (tillatelse !== 'granted') throw new Error('Du sa nei til varsler. Skru det på i nettleserens innstillinger for siden.');
+    const t = await Notification.requestPermission();
+    if (t !== 'granted') throw new Error('Du sa nei til varsler. Skru det på i nettleserens innstillinger for siden.');
     let ab = await reg.pushManager.getSubscription();
-    if (!ab) {
-      ab = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64TilUint8(VAPID_PUBLIC) });
-    }
+    if (!ab) ab = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64TilUint8(VAPID_PUBLIC) });
     await oppdater();
   } catch (e) {
-    vis(boksAbo, 'Feilet: ' + e.message, 'feil');
+    elStatus.textContent = 'Feilet: ' + e.message;
   }
 });
 
 document.getElementById('send').addEventListener('click', () => {
-  const kropp = 'Ikke endre noe under denne linjen.\n\n' + felt.value;
-  location.href = 'mailto:irma@nettskred.no?subject=' + encodeURIComponent('NSKVARSEL-ABONNEMENT') + '&body=' + encodeURIComponent(kropp);
-});
-
-document.getElementById('test').addEventListener('click', async () => {
-  const reg = await navigator.serviceWorker.ready;
-  await reg.showNotification('Nettskred varsler', {
-    body: 'Lokalt testvarsel. Ser du dette, kan telefonen VISE varsler.',
-    icon: 'ikon.png', tag: 'test',
-  });
+  location.href = 'mailto:irma@nettskred.no?subject=' +
+    encodeURIComponent('NSKVARSEL-ABONNEMENT') + '&body=' +
+    encodeURIComponent('Ikke endre noe under denne linjen.\n\n' + elFelt.value);
 });
 </script>
 </body>
